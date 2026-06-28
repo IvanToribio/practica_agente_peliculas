@@ -1,0 +1,7 @@
+python-dotenv
+pytest
+requests
+jinja2
+python-multipart
+fastapi
+uvicorn
