@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article class="movie-layout">
+    <section class="poster-panel" aria-label="Poster de la pelicula">
+        {% if movie.poster_url %}
+            <img class="poster-image" src="{{ movie.poster_url }}" alt="Poster de {{ movie.title }}">
+        {% else %}
+            <div class="poster-placeholder">Poster no disponible</div>
+        {% endif %}
+    </section>
+
+    <section class="movie-info">
+        <p class="eyebrow">Ficha de pelicula</p>
+        <h1>{{ movie.title }}</h1>
+
+        <div class="meta-line">
+            <span>{{ movie.year_label }}</span>
+            <span>{{ movie.runtime_label }}</span>
+            <span>{{ movie.vote_average_label }}</span>
+        </div>
+
+        <dl class="detail-grid">
+            <div>
+                <dt>Titulo original</dt>
+                <dd>{{ movie.original_title }}</dd>
+            </div>
+            <div>
+                <dt>Fecha de estreno</dt>
+                <dd>{{ movie.release_date }}</dd>
+            </div>
+            <div>
+                <dt>Director</dt>
+                <dd>{{ movie.director }}</dd>
+            </div>
+            <div>
+                <dt>Votos</dt>
+                <dd>{{ movie.vote_count_label }}</dd>
+            </div>
+            <div>
+                <dt>Generos</dt>
+                <dd>{{ movie.genres_label }}</dd>
+            </div>
+            <div>
+                <dt>Idioma de sinopsis</dt>
+                <dd>{{ movie.overview_language }}</dd>
+            </div>
+        </dl>
+
+        <section class="overview">
+            <h2>Sinopsis</h2>
+            <p>{{ movie.overview }}</p>
+        </section>
+
+        <div class="actions">
+            <a class="button button-secondary" href="/">Volver a buscar</a>
+            {% if movie.imdb_url %}
+                <a class="button button-primary" href="{{ movie.imdb_url }}" target="_blank" rel="noopener noreferrer">
+                    Ver en IMDb
+                </a>
+            {% endif %}
+        </div>
+
+        <p class="technical-id">TMDB ID: {{ movie.tmdb_id }}</p>
+    </section>
+</article>
+{% endblock %}

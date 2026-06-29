@@ -1,6 +1,6 @@
 # app/formatters.py
 
-from app.movie_service import Movie
+from app.movie_service import Movie, MovieCandidate
 
 
 DEFAULT_EMPTY_VALUE = "No disponible"
@@ -120,6 +120,16 @@ def _format_title_with_year(movie: Movie) -> str:
         return movie.title
 
     return f"{movie.title} ({movie.year})"
+
+
+def _format_candidate_title_with_year(candidate: MovieCandidate) -> str:
+    """
+    Devuelve el título del candidato con año si está disponible.
+    """
+    if candidate.year is None:
+        return candidate.title
+
+    return f"{candidate.title} ({candidate.year})"
 
 
 def _format_overview_note(movie: Movie) -> str | None:
@@ -251,6 +261,62 @@ def format_movie_for_web(movie: Movie) -> dict:
         "imdb_id": _safe_text(movie.imdb_id),
         "imdb_url": imdb_url,
     }
+
+
+# ============================================================
+# Formateadores de candidatos
+# ============================================================
+
+def format_candidate_for_web(candidate: MovieCandidate) -> dict:
+    """
+    Convierte un MovieCandidate en un diccionario para resultados web.
+    """
+    return {
+        "tmdb_id": candidate.tmdb_id,
+        "title": _safe_text(candidate.title),
+        "original_title": _safe_text(candidate.original_title),
+        "year": candidate.year,
+        "year_label": _format_year(candidate.year),
+        "release_date": _safe_text(candidate.release_date),
+        "vote_average": candidate.vote_average,
+        "vote_average_label": _format_rating(candidate.vote_average),
+        "vote_count": candidate.vote_count,
+        "vote_count_label": _format_votes(candidate.vote_count),
+        "poster_url": candidate.poster_url,
+    }
+
+
+def format_candidate_list_for_web(candidates: list[MovieCandidate]) -> list[dict]:
+    """
+    Formatea una lista de candidatos para la web.
+    """
+    return [format_candidate_for_web(candidate) for candidate in candidates]
+
+
+def format_candidate_list_for_telegram(candidates: list[MovieCandidate]) -> str:
+    """
+    Formatea candidatos para que Telegram pida una elección numérica.
+    """
+    if not candidates:
+        return "No he encontrado películas para elegir."
+
+    lines = [
+        "He encontrado varias películas:",
+        "",
+    ]
+
+    for index, candidate in enumerate(candidates, start=1):
+        lines.append(
+            f"{index}. {_format_candidate_title_with_year(candidate)} "
+            f"— ⭐ {_format_rating(candidate.vote_average)}"
+        )
+
+    lines.extend([
+        "",
+        "Responde con el número de la película que quieres consultar.",
+    ])
+
+    return "\n".join(lines)
 
 
 # ============================================================

@@ -12,7 +12,7 @@ from app.web.web_config import STATIC_DIR
 # ============================================================
 
 app = FastAPI(
-    title="Movie Project",
+    title="FilmTail",
     description="Web para consultar información y recomendaciones de películas usando TMDB.",
     version="1.0.0",
 )

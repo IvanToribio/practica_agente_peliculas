@@ -215,6 +215,43 @@ def get_now_playing_movies(
     return data.get("results", [])
 
 
+def discover_movies(
+    year: int | None = None,
+    genre_id: int | None = None,
+    min_votes: int | None = None,
+    page: int = 1,
+    language: str | None = None,
+    region: str | None = None,
+    sort_by: str = "vote_average.desc",
+) -> list[dict]:
+    """
+    Descubre películas usando filtros de TMDB.
+
+    Devuelve resultados parciales. La decisión de recomendación y la
+    normalización completa pertenecen a movie_service.py.
+    """
+    params = {
+        "language": language or settings.default_language,
+        "region": region or settings.default_region,
+        "page": page,
+        "sort_by": sort_by,
+        "include_adult": False,
+    }
+
+    if year is not None:
+        params["primary_release_year"] = year
+
+    if genre_id is not None:
+        params["with_genres"] = genre_id
+
+    if min_votes is not None:
+        params["vote_count.gte"] = min_votes
+
+    data = _get("/discover/movie", params=params)
+
+    return data.get("results", [])
+
+
 def build_poster_url(poster_path: str | None) -> str | None:
     """
     Construye la URL completa del póster a partir del poster_path de TMDB.

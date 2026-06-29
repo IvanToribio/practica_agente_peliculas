@@ -1,7 +1,10 @@
 # tests/test_formatters.py
 
-from app.movie_service import Movie
+from app.movie_service import Movie, MovieCandidate
 from app.formatters import (
+    format_candidate_for_web,
+    format_candidate_list_for_telegram,
+    format_candidate_list_for_web,
     format_movie_for_telegram,
     format_movie_for_alexa,
     format_movie_for_web,
@@ -61,6 +64,19 @@ def create_movie_with_missing_fields() -> Movie:
         runtime=None,
         genres=[],
         poster_url=None,
+    )
+
+
+def create_sample_candidate() -> MovieCandidate:
+    return MovieCandidate(
+        tmdb_id=438631,
+        title="Dune",
+        original_title="Dune",
+        year=2021,
+        release_date="2021-09-15",
+        vote_average=7.8,
+        vote_count=13000,
+        poster_url="https://image.tmdb.org/t/p/w500/dune_poster.jpg",
     )
 
 
@@ -180,6 +196,62 @@ def test_format_movie_with_english_overview_adds_note_in_telegram():
 
     assert "Sinopsis no disponible en español" in message
     assert "English overview fallback." in message
+
+
+def test_format_candidate_for_web_returns_complete_dict():
+    candidate = create_sample_candidate()
+
+    data = format_candidate_for_web(candidate)
+
+    assert data["tmdb_id"] == 438631
+    assert data["title"] == "Dune"
+    assert data["original_title"] == "Dune"
+    assert data["year"] == 2021
+    assert data["year_label"] == "2021"
+    assert data["release_date"] == "2021-09-15"
+    assert data["vote_average"] == 7.8
+    assert data["vote_average_label"] == "7.8/10"
+    assert data["vote_count"] == 13000
+    assert data["vote_count_label"] == "13.000"
+    assert data["poster_url"] == "https://image.tmdb.org/t/p/w500/dune_poster.jpg"
+
+
+def test_format_candidate_list_for_web_returns_list_of_dicts():
+    data = format_candidate_list_for_web([create_sample_candidate()])
+
+    assert isinstance(data, list)
+    assert len(data) == 1
+    assert data[0]["title"] == "Dune"
+    assert data[0]["tmdb_id"] == 438631
+
+
+def test_format_candidate_list_for_telegram_returns_numbered_text():
+    candidates = [
+        create_sample_candidate(),
+        MovieCandidate(
+            tmdb_id=841,
+            title="Dune",
+            original_title="Dune",
+            year=1984,
+            release_date="1984-12-14",
+            vote_average=6.2,
+            vote_count=3200,
+            poster_url=None,
+        ),
+    ]
+
+    message = format_candidate_list_for_telegram(candidates)
+
+    assert "He encontrado varias películas:" in message
+    assert "1. Dune (2021) — ⭐ 7.8/10" in message
+    assert "2. Dune (1984) — ⭐ 6.2/10" in message
+    assert "Responde con el número" in message
+
+
+def test_format_candidate_list_for_telegram_when_empty():
+    message = format_candidate_list_for_telegram([])
+
+    assert message == "No he encontrado películas para elegir."
 
 
 def test_format_movie_list_for_telegram():

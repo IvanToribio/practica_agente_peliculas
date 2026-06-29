@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title }} | FilmTail</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
+    <script src="{{ url_for('static', path='/js/main.js') }}" defer></script>
+    <script src="{{ url_for('static', path='/js/chatbot.js') }}" defer></script>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <nav class="navbar" aria-label="Navegacion principal">
+                <a class="brand brand-icon-only" href="/" aria-label="FilmTail inicio">
+                    <span class="brand-mark">FT</span>
+                </a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <aside class="chatbot-widget" aria-label="Chatbot de peliculas">
+            <section class="chatbot-panel" id="chatbot-panel" aria-label="Asistente de peliculas" hidden>
+                <header class="chatbot-header">
+                    <div>
+                        <p class="chatbot-kicker">FilmTail</p>
+                        <h2>Asistente de peliculas</h2>
+                    </div>
+                    <button class="chatbot-close" type="button" data-chatbot-close aria-label="Cerrar chat">×</button>
+                </header>
+
+                <div class="chatbot-messages" data-chatbot-messages role="log" aria-live="polite" aria-relevant="additions">
+                    <article class="chat-message chat-message-bot">
+                        Preguntame por una pelicula, una recomendacion o un dato de cine.
+                    </article>
+                </div>
+
+                <form class="chatbot-form" data-chatbot-form>
+                    <label class="sr-only" for="chatbot-input">Pregunta para el asistente</label>
+                    <textarea
+                        id="chatbot-input"
+                        class="chatbot-input"
+                        data-chatbot-input
+                        name="message"
+                        rows="1"
+                        placeholder="Quién dirigio Inception?"
+                        autocomplete="off"
+                    ></textarea>
+                    <button class="chatbot-send" type="submit" data-chatbot-send>Enviar</button>
+                </form>
+            </section>
+
+            <button
+                class="chatbot-toggle"
+                type="button"
+                data-chatbot-toggle
+                aria-controls="chatbot-panel"
+                aria-expanded="false"
+                aria-label="Abrir chat"
+            >
+                <span class="chatbot-toggle-icon" aria-hidden="true">✦</span>
+            </button>
+        </aside>
+
+        <footer class="site-footer">
+            <p>Practica de Sistemas Inteligentes: Ivan Toribio</p>
+        </footer>
+    </div>
+</body>
+</html>

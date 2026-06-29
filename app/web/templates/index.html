@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-copy">
+        <p class="eyebrow">Consulta de peliculas</p>
+        <h1>FilmTail</h1>
+        <p class="hero-text">
+            Busca una pelicula por titulo, elige una opcion de la lista y consulta su ficha completa.
+        </p>
+    </div>
+
+    <form class="search-card js-search-form" action="/search" method="get" novalidate>
+        {% if error %}
+            <div class="alert alert-error" role="alert">{{ error }}</div>
+        {% endif %}
+
+        <div class="form-grid">
+            <label class="field">
+                <span>Titulo</span>
+                <input
+                    class="js-title-input"
+                    type="text"
+                    name="title"
+                    value="{{ last_search or '' }}"
+                    placeholder="Ej. Dune"
+                    autocomplete="off"
+                    required
+                >
+            </label>
+        </div>
+
+        <p class="form-error js-form-error" aria-live="polite"></p>
+
+        <button class="button button-primary js-submit-button" type="submit">
+            Buscar pelicula
+        </button>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="empty-state">
+    <p class="eyebrow">Sin resultado</p>
+    <h1>No se ha encontrado la pelicula</h1>
+    <p class="empty-message">{{ message }}</p>
+
+    {% if searched_title %}
+        <p class="searched-term">Busqueda: <strong>{{ searched_title }}</strong></p>
+    {% endif %}
+
+    <form class="inline-search js-search-form" action="/search" method="get" novalidate>
+        <label class="field">
+            <span>Probar otro titulo</span>
+            <input
+                class="js-title-input"
+                type="text"
+                name="title"
+                value="{{ searched_title or '' }}"
+                placeholder="Ej. Interstellar"
+                autocomplete="off"
+                required
+            >
+        </label>
+
+        <p class="form-error js-form-error" aria-live="polite"></p>
+        <button class="button button-primary js-submit-button" type="submit">Buscar de nuevo</button>
+    </form>
+
+    <a class="text-link" href="/">Volver al inicio</a>
+</section>
+{% endblock %}
