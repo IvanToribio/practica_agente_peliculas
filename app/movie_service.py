@@ -339,11 +339,9 @@ def search_movie_results(
     """
     Busca películas por título y devuelve resultados parciales de TMDB.
 
-    Esta función puede ser útil para la web o para un futuro chatbot,
+    Esta función puede ser útil para la web o para el chatbot,
     porque permite mostrar varias opciones si el usuario busca algo ambiguo.
 
-    Aunque la decisión actual sea coger el primer resultado,
-    dejamos esta función preparada para reutilizarla más adelante.
     """
     title = title.strip()
 
@@ -416,7 +414,7 @@ def get_movie_by_title(
     """
     Busca una película por título y devuelve la primera coincidencia.
 
-    Uso recomendado:
+    Uso:
     - Alexa.
     - Respuestas rápidas.
     - Casos donde se quiera escoger automáticamente la primera coincidencia.

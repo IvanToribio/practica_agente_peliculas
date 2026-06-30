@@ -96,6 +96,28 @@ def _format_genres(genres: list[str] | None) -> str:
     return ", ".join(genres)
 
 
+def _join_items_naturally(items: list[str]) -> str:
+    """
+    Une elementos en lenguaje natural para respuestas de voz.
+    """
+    clean_items = [
+        item.strip()
+        for item in items
+        if item and item.strip()
+    ]
+
+    if not clean_items:
+        return DEFAULT_EMPTY_VALUE
+
+    if len(clean_items) == 1:
+        return clean_items[0]
+
+    if len(clean_items) == 2:
+        return f"{clean_items[0]} y {clean_items[1]}"
+
+    return f"{', '.join(clean_items[:-1])} y {clean_items[-1]}"
+
+
 def _build_imdb_url(imdb_id: str | None) -> str | None:
     """
     Construye la URL de IMDb a partir del IMDb ID.
@@ -228,6 +250,127 @@ def format_movie_for_alexa(movie: Movie) -> str:
         parts.append("No tengo disponible su nota ni su duración.")
 
     return " ".join(parts)
+
+
+# ============================================================
+# Formateadores específicos de Alexa por intent
+# ============================================================
+
+def format_search_movie_for_alexa(movie: Movie) -> str:
+    """
+    Formatea una respuesta general para SearchMovieIntent.
+    """
+    return format_movie_for_alexa(movie)
+
+
+def format_director_for_alexa(movie: Movie) -> str:
+    """
+    Formatea el director para GetDirectorIntent.
+    """
+    if not movie.director:
+        return f"He encontrado {movie.title}, pero no tengo información sobre su director."
+
+    return f"{movie.title} fue dirigida por {movie.director}."
+
+
+def format_rating_for_alexa(movie: Movie) -> str:
+    """
+    Formatea la nota media para GetRatingIntent.
+    """
+    if movie.vote_average is None:
+        return f"He encontrado {movie.title}, pero no tengo su nota disponible."
+
+    if movie.vote_count is not None:
+        return (
+            f"La nota de {movie.title} es {movie.vote_average:.1f} sobre 10, "
+            f"basada en {movie.vote_count} votos."
+        )
+
+    return f"La nota de {movie.title} es {movie.vote_average:.1f} sobre 10."
+
+
+def format_release_date_for_alexa(movie: Movie) -> str:
+    """
+    Formatea el año o fecha de estreno para GetReleaseDateIntent.
+    """
+    if movie.year is not None:
+        return f"{movie.title} se estrenó en {movie.year}."
+
+    if movie.release_date:
+        return f"{movie.title} se estrenó el {movie.release_date}."
+
+    return f"He encontrado {movie.title}, pero no tengo su fecha de estreno disponible."
+
+
+def format_runtime_for_alexa(movie: Movie) -> str:
+    """
+    Formatea la duración para GetRuntimeIntent.
+    """
+    if movie.runtime is None:
+        return f"He encontrado {movie.title}, pero no tengo su duración disponible."
+
+    return f"{movie.title} dura {_format_runtime_for_alexa(movie.runtime)}."
+
+
+def format_overview_for_alexa(movie: Movie, max_length: int = 450) -> str:
+    """
+    Formatea la sinopsis para GetOverviewIntent.
+    """
+    overview = movie.overview.strip() if movie.overview else ""
+
+    if not overview:
+        return f"No tengo una sinopsis disponible para {movie.title}."
+
+    if len(overview) > max_length:
+        overview = overview[:max_length].rstrip() + "..."
+
+    if movie.overview_language == "en-US":
+        return (
+            "No he encontrado la sinopsis en español. "
+            f"{movie.title} trata sobre lo siguiente: {overview}"
+        )
+
+    return f"{movie.title} trata sobre lo siguiente: {overview}"
+
+
+def format_genres_for_alexa(movie: Movie) -> str:
+    """
+    Formatea los géneros para GetGenresIntent.
+    """
+    if not movie.genres:
+        return f"He encontrado {movie.title}, pero no tengo sus géneros disponibles."
+
+    genres = [
+        genre.lower()
+        for genre in movie.genres
+    ]
+
+    if len(genres) == 1:
+        return f"El género de {movie.title} es {genres[0]}."
+
+    return f"Los géneros de {movie.title} son {_join_items_naturally(genres)}."
+
+
+def format_movie_for_alexa_intent(movie: Movie, intent_name: str) -> str:
+    """
+    Mapea un intent de Alexa a su formateador específico.
+    """
+    intent_formatters = {
+        "SearchMovieIntent": format_search_movie_for_alexa,
+        "GetDirectorIntent": format_director_for_alexa,
+        "GetRatingIntent": format_rating_for_alexa,
+        "GetReleaseDateIntent": format_release_date_for_alexa,
+        "GetRuntimeIntent": format_runtime_for_alexa,
+        "GetOverviewIntent": format_overview_for_alexa,
+        "GetGenresIntent": format_genres_for_alexa,
+    }
+
+    formatter = intent_formatters.get(intent_name)
+
+    if formatter is None:
+        return "No sé responder todavía a esa consulta sobre la película."
+
+    return formatter(movie)
 
 
 def format_movie_for_web(movie: Movie) -> dict:
